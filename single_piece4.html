@@ -31,7 +31,8 @@
 
 <script>
 
-
+containerWidth = 340;
+containerHeight = 340;
 const TOP_CURVED = 1;
 const TOP_STRAIGHT = 0;
 
@@ -265,14 +266,14 @@ function drawPiece(x, y, spikes, curves, size = 120) {
     const zoomFactor = 1.1;
     const delta = e.deltaY < 0 ? 1 / zoomFactor : zoomFactor;
 
-    const sceneX = viewX + (mouseX / 340) * viewW;
-    const sceneY = viewY + (mouseY / 340) * viewH;
+    const sceneX = viewX + (mouseX / containerWidth) * viewW;
+    const sceneY = viewY + (mouseY / containerHeight) * viewH;
 
     viewW *= delta;
     viewH *= delta;
 
-    viewX = sceneX - (mouseX / 340) * viewW;
-    viewY = sceneY - (mouseY / 340) * viewH;
+    viewX = sceneX - (mouseX / containerWidth) * viewW;
+    viewY = sceneY - (mouseY / containerHeight) * viewH;
 
     // Ограничения
     const min = 50, max = 2000;
@@ -280,11 +281,86 @@ function drawPiece(x, y, spikes, curves, size = 120) {
     if (viewW > max) { viewW = max; viewH = max; }
 
     // Пересчёт после ограничений
-    viewX = sceneX - (mouseX / 340) * viewW;
-    viewY = sceneY - (mouseY / 340) * viewH;
+    viewX = sceneX - (mouseX / containerWidth) * viewW;
+    viewY = sceneY - (mouseY / containerHeight) * viewH;
 
     updateViewBox();
   });
+  
+  // --- Перетаскивание (pan) фона SVG ---
+let isPanning = false;
+let lastX = 0;
+let lastY = 0;
+
+svg.addEventListener("mousedown", function(e) {
+  // Проверяем, попал ли клик по какому-либо path (кусочку паззла)
+  const target = e.target;
+  if (target.tagName === "path") {
+    // Кликнули по кусочку — не панорамируем
+    return;
+  }
+
+  // Клик на фоне SVG — начинаем панорамирование
+  isPanning = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  svg.style.cursor = "grabbing";
+  e.preventDefault();
+});
+
+svg.addEventListener("mousemove", function(e) {
+  if (!isPanning) return;
+
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+
+  // Переводим смещение мыши в смещение сцены (в единицах viewBox)
+  const deltaX = (dx / containerWidth) * viewW;
+  const deltaY = (dy / containerHeight) * viewH;
+
+  // Сдвигаем viewBox
+  viewX -= deltaX;
+  viewY -= deltaY;
+
+  updateViewBox();
+
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+svg.addEventListener("mouseup", function() {
+  isPanning = false;
+  svg.style.cursor = "default";
+});
+
+svg.addEventListener("mouseleave", function() {
+  if (isPanning) {
+    isPanning = false;
+    svg.style.cursor = "default";
+  }
+});
+
+// Добавим стиль: при наведении — курсор "grab", если не на path
+svg.style.cursor = "default";
+
+svg.addEventListener("mouseenter", function(e) {
+  if (e.target === svg) {
+    svg.style.cursor = "grab";
+  }
+});
+svg.addEventListener("mouseout", function(e) {
+  if (isPanning) return;
+  svg.style.cursor = "default";
+});
+
+// Также обновим cursor при входе, если мышь над SVG, но не над path
+svg.addEventListener("mouseover", function(e) {
+  if (e.target === svg && !isPanning) {
+    svg.style.cursor = "grab";
+  } else if (!isPanning) {
+    svg.style.cursor = "default";
+  }
+});
 
   updateViewBox();
 </script>
