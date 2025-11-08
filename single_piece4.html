@@ -14,6 +14,8 @@
       margin: 20px auto;
       width: 340px;
       height: 340px;
+      user-select: none;
+      touch-action: none;
     }
     button {
       margin: 5px;
@@ -249,8 +251,8 @@ function drawPiece(x, y, spikes, curves, size = 120) {
 
   let viewX = 0;
   let viewY = 0;
-  let viewW = 340;
-  let viewH = 340;
+  let viewW = containerWidth;
+  let viewH = containerHeight;
 
   function updateViewBox() {
     svg.setAttribute("viewBox", `${viewX} ${viewY} ${viewW} ${viewH}`);
@@ -287,30 +289,14 @@ function drawPiece(x, y, spikes, curves, size = 120) {
     updateViewBox();
   });
   
-  // --- Перетаскивание (pan) фона SVG ---
+// --- Перетаскивание (pan) с учётом выхода за границы SVG ---
 let isPanning = false;
 let lastX = 0;
 let lastY = 0;
 
-svg.addEventListener("mousedown", function(e) {
-  // Проверяем, попал ли клик по какому-либо path (кусочку паззла)
-  const target = e.target;
-  if (target.tagName === "path") {
-    // Кликнули по кусочку — не панорамируем
-    return;
-  }
-
-  // Клик на фоне SVG — начинаем панорамирование
-  isPanning = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-  svg.style.cursor = "grabbing";
-  e.preventDefault();
-});
-
-svg.addEventListener("mousemove", function(e) {
+function onMouseMove(e) {
   if (!isPanning) return;
-
+  svg.style.userSelect = "none";
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
 
@@ -326,33 +312,44 @@ svg.addEventListener("mousemove", function(e) {
 
   lastX = e.clientX;
   lastY = e.clientY;
-});
+}
 
-svg.addEventListener("mouseup", function() {
-  isPanning = false;
-  svg.style.cursor = "default";
-});
-
-svg.addEventListener("mouseleave", function() {
+function onMouseUp() {
   if (isPanning) {
     isPanning = false;
     svg.style.cursor = "default";
+    // Удаляем глобальные слушатели
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
   }
-});
+}
 
-// Добавим стиль: при наведении — курсор "grab", если не на path
-svg.style.cursor = "default";
-
-svg.addEventListener("mouseenter", function(e) {
-  if (e.target === svg) {
-    svg.style.cursor = "grab";
+svg.addEventListener("mousedown", function(e) {
+  // Проверяем, попал ли клик по path (кусочку)
+  const target = e.target;
+  if (target.tagName === "path") {
+    return; // не панорамируем
   }
-});
-svg.addEventListener("mouseout", function(e) {
-  if (isPanning) return;
-  svg.style.cursor = "default";
+
+  // Начинаем пан
+  isPanning = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  svg.style.cursor = "grabbing";
+  e.preventDefault();
+
+  // Включаем слушатели на весь документ
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
 });
 
+// Курсор при наведении
+svg.addEventListener("mouseenter", () => {
+  if (!isPanning) svg.style.cursor = "grab";
+});
+svg.addEventListener("mouseleave", () => {
+  if (!isPanning) svg.style.cursor = "default";
+});
 // Также обновим cursor при входе, если мышь над SVG, но не над path
 svg.addEventListener("mouseover", function(e) {
   if (e.target === svg && !isPanning) {
@@ -363,8 +360,6 @@ svg.addEventListener("mouseover", function(e) {
 });
 
   updateViewBox();
-</script>
-
 </script>
 
 </body>
