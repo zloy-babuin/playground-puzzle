@@ -242,6 +242,53 @@ function drawPiece(x, y, spikes, curves, size = 120) {
   drawPiece(170, 50, LEFT_HOLE | BOTTOM_SPIKE, BOTTOM_CURVED | LEFT_CURVED);
   drawPiece(170, 170, TOP_HOLE | LEFT_SPIKE, TOP_CURVED | LEFT_CURVED);
   drawPiece(50, 170, TOP_SPIKE | RIGHT_HOLE, TOP_CURVED | RIGTH_CURVED);
+
+
+  const svg = document.getElementById("puzzlecontainer");
+
+  let viewX = 0;
+  let viewY = 0;
+  let viewW = 340;
+  let viewH = 340;
+
+  function updateViewBox() {
+    svg.setAttribute("viewBox", `${viewX} ${viewY} ${viewW} ${viewH}`);
+  }
+
+  svg.addEventListener("wheel", function(e) {
+    e.preventDefault();
+
+    const rect = svg.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const zoomFactor = 1.1;
+    const delta = e.deltaY < 0 ? 1 / zoomFactor : zoomFactor;
+
+    const sceneX = viewX + (mouseX / 340) * viewW;
+    const sceneY = viewY + (mouseY / 340) * viewH;
+
+    viewW *= delta;
+    viewH *= delta;
+
+    viewX = sceneX - (mouseX / 340) * viewW;
+    viewY = sceneY - (mouseY / 340) * viewH;
+
+    // Ограничения
+    const min = 50, max = 2000;
+    if (viewW < min) { viewW = min; viewH = min; }
+    if (viewW > max) { viewW = max; viewH = max; }
+
+    // Пересчёт после ограничений
+    viewX = sceneX - (mouseX / 340) * viewW;
+    viewY = sceneY - (mouseY / 340) * viewH;
+
+    updateViewBox();
+  });
+
+  updateViewBox();
+</script>
+
 </script>
 
 </body>
