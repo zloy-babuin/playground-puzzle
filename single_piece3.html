@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Один кусочек паззла (4 шипа)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+    }
+    #puzzlecontainer {
+      border: 1px solid #ccc;
+      margin: 20px auto;
+      width: 600px;
+      height: 600px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+    }
+    input {
+      margin: 3px 5px;
+    }
+  </style>
+</head>
+<body>
+
+<svg id="puzzlecontainer" width="600" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Кусочки будут добавляться сюда -->
+</svg>
+
+<script>
+  // --- Вспомогательные функции ---
+  let seed = 1;
+  function random() {
+    const x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function uniform(min, max) {
+    return min + random() * (max - min);
+  }
+
+  function rbool() { return random() > 0.5; }
+
+  // --- Отрисовка одного кусочка ---
+// --- Отрисовка одного кусочка ---
+function drawPiece(x = 0, y = 0, spikes, curves = 0) {
+  const svg = document.getElementById("puzzlecontainer");
+
+  // Определяем уникальный ID
+  const existingPaths = svg.querySelectorAll("path");
+  const newId = `piece-${existingPaths.length + 1}`;
+
+  const width = 120; // ширина
+  const height = 120; // высота
+
+  const spike = 0.12; // размер шипа 10%
+
+  const isTopOut = (spikes & 1) ? true : false;
+  const isRightOut = (spikes & 2) ? true : false;
+  const isBottomOut = (spikes & 4) ? true : false;
+  const isLeftOut = (spikes & 8) ? true : false;
+
+  let str = "";
+
+  // --- Верхняя грань ---
+  let flip = false;
+  let a = 0, b = 0, c = 0, d = 0, e = 0;
+
+  str += `M ${x} ${y} `;
+  if (curves & 1) {
+    for (let i = 0; i < 1; i++) {
+      str += `C 
+        ${x + width * 0.2}
+        ${isTopOut ? y - a * height * spike : y + a * height * spike},
+        
+        ${x + width * 0.5 + b * width * spike}
+        ${isTopOut ? y + spike * height + c * height * spike : y - spike * height + c * height * spike},
+        
+        ${x + width * 0.5 - spike * width + b * width * spike}
+        ${isTopOut ? y - spike * height + c * height * spike : y + spike * height + c * height * spike} `;
+
+      str += `C 
+        ${x + width * 0.5 - 2.0 * spike * width + b * width * spike - d * width * spike}
+        ${isTopOut ? y - 3.0 * spike * height + c * height * spike : y + 3.0 * spike * height + c * height * spike},
+        
+        ${x + width * 0.5 + 2.0 * spike * width + b * width * spike - d * width * spike}
+        ${isTopOut ? y - 3.0 * spike * height + c * height * spike : y + 3.0 * spike * height + c * height * spike},
+        
+        ${x + width * 0.5 + spike * width + b * width * spike}
+        ${isTopOut ? y - spike * height + c * height * spike : y + spike * height + c * height * spike} `;
+
+      str += `C 
+        ${x + width * 0.5 + b * width * spike + d * width * spike}
+        ${isTopOut ? y + spike * height + c * height * spike : y - spike * height + c * height * spike},
+        
+        ${x + width * 0.8}
+        ${isTopOut ? y - e * height * spike : y + e * height * spike},
+        
+        ${x + width}
+        ${y} `;
+    //   next();
+    }
+  } else {
+    str += `L ${x + width} ${y} `;
+    // next();
+  }
+
+// --- Правая грань ---
+if (curves & 2) {
+  for (let i = 0; i < 1; i++) {
+        str += `C 
+          ${isRightOut ? x + width + a * width * spike : x + width - a * width * spike}
+          ${y + height * 0.2},
+          
+          ${isRightOut ? x + width - spike * width + b * width * spike : x + width + spike * width + b * width * spike}
+          ${y + height * 0.5 + c * height * spike},
+        
+          ${isRightOut ? x + width + spike * width + b * width * spike : x + width - spike * width + b * width * spike}
+          ${y + height * 0.5 - spike * height + c * height * spike} `;
+
+        str += `C 
+          ${isRightOut ? x + width + 3.0 * spike * width + b * width * spike : x + width - 3.0 * spike * width + b * width * spike}
+          ${y + height * 0.5 - 2.0 * spike * height + c * height * spike},
+          
+          ${isRightOut ? x + width + 3.0 * spike * width + b * width * spike : x + width - 3.0 * spike * width + b * width * spike}
+          ${y + height * 0.5 + 2.0 * spike * height + c * height * spike},
+          
+          ${isRightOut ? x + width + spike * width + b * width * spike : x + width - spike * width + b * width * spike}
+          ${y + height * 0.5 + spike * height + c * height * spike} `;
+
+
+        str += `C
+          ${isRightOut ? x + width - spike * width + b * width * spike : x + width + spike * width + b * width * spike}
+          ${y + height * 0.5 + c * height * spike},
+          
+          ${isRightOut ? x + width + e * width * spike : x + width - e * width * spike}
+          ${y + height * 0.8},
+          
+          ${x + width}
+          ${y + height} `;
+
+  }
+} else {
+  str += `L ${x + width} ${y + height} `;
+}
+// --- Нижняя грань ---
+if (curves & 4) {
+  for (let i = 0; i < 1; i++) {
+    str += `C 
+      ${x + width * 0.8}
+      ${isBottomOut ? y + height + e * height * spike : y + height - e * height * spike},
+      
+      ${x + width * 0.5 + b * width * spike + d * width * spike}
+      ${isBottomOut ? y + height - spike * height + c * height * spike : y + height + spike * height + c * height * spike},
+      
+      ${x + width * 0.5 + spike * width + b * width * spike}
+      ${isBottomOut ? y + height + spike * height + c * height * spike : y + height - spike * height + c * height * spike} `;
+
+    // Вторая дуга — завершает шип
+    str += `C 
+      ${x + width * 0.5 + 2.0 * spike * width + b * width * spike - d * width * spike}
+      ${isBottomOut ? y + height + 3.0 * spike * height + c * height * spike : y + height - 3.0 * spike * height + c * height * spike},
+      
+      ${x + width * 0.5 - 2.0 * spike * width + b * width * spike - d * width * spike}
+      ${isBottomOut ? y + height + 3.0 * spike * height + c * height * spike : y + height - 3.0 * spike * height + c * height * spike},
+      
+      ${x + width * 0.5 - spike * width + b * width * spike}
+      ${isBottomOut ? y + height + spike * height + c * height * spike : y + height - spike * height + c * height * spike} `;
+
+      str += `S 
+      ${x + width * 0.2}
+      ${isBottomOut ? y + height + a * height * spike : y + height - a * height * spike},
+      
+      ${x}
+      ${y + height} `;
+  }
+} else {
+  str += `L ${x} ${y + height} `;
+}
+  // --- Левая грань ---
+
+  if (curves & 8) {
+    for (let i = 0; i < 1; i++) {
+
+      str += `C
+        ${isLeftOut ? x - a * width * spike : x + a * width * spike}
+        ${y + height * 0.8},
+        
+        ${isLeftOut ? x + spike * width - b * width * spike : x - spike * width - b * width * spike} 
+        ${y + height * 0.5 + c * height * spike},
+        
+        ${isLeftOut ? x - spike * width - b * width * spike : x + spike * width - b * width * spike}
+        ${y + height * 0.5 + spike * height + c * height * spike} `;
+
+
+      str += `C 
+        ${isLeftOut ? x - 3.0 * spike * width - b * width * spike : x + 3.0 * spike * width - b * width * spike}
+        ${y + height * 0.5 + 2.0 * spike * height + c * height * spike},
+        
+        ${isLeftOut ? x - 3.0 * spike * width - b * width * spike : x + 3.0 * spike * width - b * width * spike} 
+        ${y + height * 0.5 - 2.0 * spike * height + c * height * spike},
+        
+        ${isLeftOut ? x - spike * width - b * width * spike : x + spike * width - b * width * spike} 
+        ${y + height * 0.5 - spike * height + c * height * spike} `;
+
+
+      str += `C 
+        ${isLeftOut ? x + spike * width - b * width * spike : x - spike * width - b * width * spike} 
+        ${y + height * 0.5 + c * height * spike},
+        
+        ${isLeftOut ? x - e * width * spike : x + e * width * spike} 
+        ${y + height * 0.2},
+        
+        ${x} 
+        ${y} `;
+
+        // next();
+      }
+    } else {
+      str += `L ${x} ${y} `;
+    }
+
+  str += " Z";
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("id", newId);
+  path.setAttribute("d", str);
+  path.setAttribute("fill", "lightblue");
+  path.setAttribute("stroke", "#000");
+  path.setAttribute("stroke-width", "2");
+
+  svg.appendChild(path);
+}
+
+const TOP_CURVED = 1;
+const TOP_STRAIGHT = 0;
+
+const RIGTH_CURVED = 2;
+const RIGHT_STRAIGHT = 0;
+
+const BOTTOM_CURVED = 4;
+const BOTTOM_STRAIGHT = 0;
+
+const LEFT_CURVED = 8;
+const LEFT_STRAIGHT = 0;
+
+const TOP_SPIKE = 1;
+const TOP_HOLE = 0;
+
+const RIGHT_SPIKE = 2;
+const RIGHT_HOLE = 0;
+
+const BOTTOM_SPIKE = 4;
+const BOTTOM_HOLE = 0;
+
+const LEFT_SPIKE = 8;
+const LEFT_HOLE = 0;
+
+
+  // --- Инициализация ---
+  drawPiece(50, 50, RIGHT_SPIKE | BOTTOM_HOLE, RIGTH_CURVED | BOTTOM_CURVED);
+  drawPiece(170, 50, LEFT_HOLE | BOTTOM_SPIKE, BOTTOM_CURVED | LEFT_CURVED);
+  drawPiece(170, 170, TOP_HOLE | LEFT_HOLE, TOP_CURVED | LEFT_CURVED);
+  drawPiece(50, 170, TOP_SPIKE | RIGHT_SPIKE, TOP_CURVED | RIGTH_CURVED);
+  // drawPiece(120, 0);
+</script>
+
+</body>
+</html>
