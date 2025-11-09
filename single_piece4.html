@@ -296,15 +296,13 @@ let lastY = 0;
 
 function onMouseMove(e) {
   if (!isPanning) return;
-  svg.style.userSelect = "none";
+
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
 
-  // Переводим смещение мыши в смещение сцены (в единицах viewBox)
   const deltaX = (dx / containerWidth) * viewW;
   const deltaY = (dy / containerHeight) * viewH;
 
-  // Сдвигаем viewBox
   viewX -= deltaX;
   viewY -= deltaY;
 
@@ -318,31 +316,53 @@ function onMouseUp() {
   if (isPanning) {
     isPanning = false;
     svg.style.cursor = "default";
-    // Удаляем глобальные слушатели
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
   }
 }
 
+// Обработчик mousedown — расширенный
 svg.addEventListener("mousedown", function(e) {
-  // Проверяем, попал ли клик по path (кусочку)
-  const target = e.target;
-  if (target.tagName === "path") {
-    return; // не панорамируем
+  // Средняя кнопка мыши (колесо) — button === 1
+  if (e.button === 1) {
+    // Начинаем пан по средней кнопке — всегда, даже на path
+    e.preventDefault(); // запрещаем стандартное поведение браузера (например, drag)
+    isPanning = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    svg.style.cursor = "grabbing";
+
+    // Подключаем слушатели к document
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+
+    return;
   }
 
-  // Начинаем пан
-  isPanning = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-  svg.style.cursor = "grabbing";
-  e.preventDefault();
+  // Левая кнопка (button === 0) — только если не на path
+  if (e.button === 0) {
+    const target = e.target;
+    if (target.tagName === "path") {
+      return; // не панорамируем по кусочку левой кнопкой
+    }
 
-  // Включаем слушатели на весь документ
-  document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("mouseup", onMouseUp);
+    e.preventDefault();
+    isPanning = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    svg.style.cursor = "grabbing";
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
 });
 
+// Отключаем контекстное меню на колесе (иногда вызывается)
+svg.addEventListener("contextmenu", function(e) {
+  if (e.target.tagName === "svg" || e.target.tagName === "path") {
+    e.preventDefault();
+  }
+});
 // Курсор при наведении
 svg.addEventListener("mouseenter", () => {
   if (!isPanning) svg.style.cursor = "grab";
