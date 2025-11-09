@@ -1,12 +1,8 @@
 <template>
-  <MainLayout>
-
-    <router-view />
-
-  </MainLayout>
+  <router-view />
 </template>
 
 <script setup>
-import MainLayout from './components/laytout/main-layout.vue'; // Путь к вашему файлу
+import MainLayout from '@/components/layouts/main-layout.vue'; // Путь к вашему файлу
 // ...
 </script>
