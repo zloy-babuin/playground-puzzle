@@ -38,3 +38,4 @@ __screenshots__/
 .vite
 
 /backend/.env
+/backend/node_modules
