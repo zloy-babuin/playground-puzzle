@@ -6,6 +6,7 @@ const DefaultLayout = () => import('@/components/layouts/main-layout.vue')
 const GameLayout = () => import('@/components/layouts/game-layout.vue')
 
 const Home = () => import('@/components/pages/HomePage.vue')
+const Puzzle = () => import('@/components/pages/GamePage.vue')
 // const Login = () => import('@/views/Login.vue')
 // const Register = () => import('@/views/Register.vue')
 // const Dashboard = () => import('@/views/Dashboard.vue')
@@ -23,9 +24,10 @@ export const routes: RouteRecordRaw[] = [
 
   // Авторизация: /login, /register
   {
-    path: '/auth',
+    path: '/puzzle',
     component: GameLayout,
     children: [
+      { path: "", name: "puzzle", component: Puzzle }
       // { path: 'login', name: 'Login', component: Login },
       // { path: 'register', name: 'Register', component: Register },
     ],

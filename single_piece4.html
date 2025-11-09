@@ -83,33 +83,33 @@ function drawPiece(x, y, spikes, curves, size = 120) {
   // --- Верхняя грань ---
   if (curves & TOP_CURVED) {
     for (let i = 0; i < 1; i++) {
-      str += `C 
+      str += `C
         ${x + width * 0.2}
         ${y},
-        
+
         ${x + width * 0.5}
         ${isTopOut ? y + spike * height : y - spike * height},
-        
+
         ${x + width * 0.5 - spike * width}
         ${isTopOut ? y - spike * height : y + spike * height } `;
 
-      str += `C 
+      str += `C
         ${x + width * 0.5 - 2.0 * spike * width}
         ${isTopOut ? y - 3.0 * spike * height : y + 3.0 * spike * height},
-        
+
         ${x + width * 0.5 + 2.0 * spike * width}
         ${isTopOut ? y - 3.0 * spike * height : y + 3.0 * spike * height},
-        
+
         ${x + width * 0.5 + spike * width}
         ${isTopOut ? y - spike * height : y + spike * height} `;
 
-      str += `C 
+      str += `C
         ${x + width * 0.5}
         ${isTopOut ? y + spike * height : y - spike * height},
-        
+
         ${x + width * 0.8}
         ${y},
-        
+
         ${x + width}
         ${y} `;
     }
@@ -120,23 +120,23 @@ function drawPiece(x, y, spikes, curves, size = 120) {
   // --- Правая грань ---
   if (curves & RIGTH_CURVED) {
     for (let i = 0; i < 1; i++) {
-      str += `C 
+      str += `C
       ${isRightOut ? x + width : x + width}
       ${y + height * 0.2},
-        
+
       ${isRightOut ? x + width - spike * width : x + width + spike * width}
       ${y + height * 0.5},
-        
+
       ${isRightOut ? x + width + spike * width : x + width - spike * width}
       ${y + height * 0.5 - spike * height} `;
 
-      str += `C 
+      str += `C
       ${isRightOut ? x + width + 3.0 * spike * width : x + width - 3.0 * spike * width}
       ${y + height * 0.5 - 2.0 * spike * height},
-        
+
       ${isRightOut ? x + width + 3.0 * spike * width : x + width - 3.0 * spike * width}
       ${y + height * 0.5 + 2.0 * spike * height},
-        
+
       ${isRightOut ? x + width + spike * width : x + width - spike * width}
       ${y + height * 0.5 + spike * height} `;
 
@@ -144,10 +144,10 @@ function drawPiece(x, y, spikes, curves, size = 120) {
       str += `C
       ${isRightOut ? x + width - spike * width : x + width + spike * width}
       ${y + height * 0.5},
-        
+
       ${isRightOut ? x + width : x + width}
       ${y + height * 0.8},
-        
+
       ${x + width}
       ${y + height} `;
     }
@@ -158,30 +158,30 @@ function drawPiece(x, y, spikes, curves, size = 120) {
   // --- Нижняя грань ---
   if (curves & BOTTOM_CURVED) {
     for (let i = 0; i < 1; i++) {
-      str += `C 
+      str += `C
       ${x + width * 0.8}
       ${isBottomOut ? y + height : y + height},
-        
+
       ${x + width * 0.5}
       ${isBottomOut ? y + height - spike * height : y + height + spike * height},
-        
+
       ${x + width * 0.5 + spike * width}
       ${isBottomOut ? y + height + spike * height : y + height - spike * height} `;
 
-      str += `C 
+      str += `C
       ${x + width * 0.5 + 2.0 * spike * width}
       ${isBottomOut ? y + height + 3.0 * spike * height : y + height - 3.0 * spike * height},
-        
+
       ${x + width * 0.5 - 2.0 * spike * width}
       ${isBottomOut ? y + height + 3.0 * spike * height : y + height - 3.0 * spike * height},
-        
+
       ${x + width * 0.5 - spike * width}
       ${isBottomOut ? y + height + spike * height : y + height - spike * height} `;
 
-      str += `S 
+      str += `S
       ${x + width * 0.2}
       ${y + height},
-       
+
       ${x}
       ${y + height} `;
     }
@@ -196,33 +196,33 @@ function drawPiece(x, y, spikes, curves, size = 120) {
       str += `C
         ${x}
         ${y + height * 0.8},
-        
-        ${isLeftOut ? x + spike * width: x - spike * width} 
+
+        ${isLeftOut ? x + spike * width: x - spike * width}
         ${y + height * 0.5},
-        
+
         ${isLeftOut ? x - spike * width : x + spike * width}
         ${y + height * 0.5 + spike * height} `;
 
 
-      str += `C 
+      str += `C
         ${isLeftOut ? x - 3.0 * spike * width : x + 3.0 * spike * width}
         ${y + height * 0.5 + 2.0 * spike * height},
-        
-        ${isLeftOut ? x - 3.0 * spike * width: x + 3.0 * spike * width} 
+
+        ${isLeftOut ? x - 3.0 * spike * width: x + 3.0 * spike * width}
         ${y + height * 0.5 - 2.0 * spike * height},
-        
-        ${isLeftOut ? x - spike * width : x + spike * width} 
+
+        ${isLeftOut ? x - spike * width : x + spike * width}
         ${y + height * 0.5 - spike * height} `;
 
 
-      str += `C 
-        ${isLeftOut ? x + spike * width : x - spike * width} 
+      str += `C
+        ${isLeftOut ? x + spike * width : x - spike * width}
         ${y + height * 0.5},
-        
-        ${x} 
+
+        ${x}
         ${y + height * 0.2},
-        
-        ${x} 
+
+        ${x}
         ${y} `;
       }
     } else {
@@ -288,7 +288,7 @@ function drawPiece(x, y, spikes, curves, size = 120) {
 
     updateViewBox();
   });
-  
+
 // --- Перетаскивание (pan) с учётом выхода за границы SVG ---
 let isPanning = false;
 let lastX = 0;

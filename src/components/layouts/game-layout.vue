@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col min-h-screen bg-gray-50">
-
     <header class="bg-gray-800 text-white p-4 shadow-md">
       <nav class="container mx-auto flex justify-between items-center">
         <h1 class="text-xl font-bold">Название Приложения</h1>
@@ -12,12 +11,9 @@
       </nav>
     </header>
 
-    <main class="flex-grow bg-white p-4 sm:p-8 overflow-y-auto">
-      <div class="container mx-auto h-full">
-
-        <slot></slot>
-
-      </div>
+    <main class="w-full flex-grow relative bg-gray-100 border-2 border-amber-600  overflow-hidden">
+      <!-- Контейнер для SVG на весь оставшийся экран -->
+      <router-view />
     </main>
 
     <footer class="bg-gray-700 text-white p-3 text-center text-xs sm:text-sm">
@@ -30,17 +26,16 @@
         </div>
       </div>
     </footer>
-
   </div>
 </template>
 
-<script setup>
-// Здесь могут быть скрипты, если компонент будет принимать props
-// или иметь внутреннюю логику. Для простого layout это не нужно.
-</script>
 
 <style scoped>
-/* Стили, специфичные для этого компонента.
-  Поскольку используется Tailwind, обычно здесь ничего не требуется.
-*/
+  main {
+    position: relative;
+    overflow: hidden;
+    flex-grow: 1;
+    width: 100vw;
+    height: calc(100vh - header_height - footer_height);
+  }
 </style>
