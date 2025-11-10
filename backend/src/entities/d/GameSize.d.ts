@@ -1,0 +1,1 @@
+export type GameSize = "tiny" | "small" | "medium" | "large" | "huge";

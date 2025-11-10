@@ -1,0 +1,1 @@
+export type PieceKind = "topLeft" | "top" | "topRight" | "right" | "bottomRight" | "bottom" | "bottomLeft" | "left" | "regular";

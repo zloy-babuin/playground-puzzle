@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Тестовый WS Клиент</title>
+  <style>
+      body { font-family: sans-serif; }
+      .log-area { border: 1px solid #ccc; padding: 10px; min-height: 100px; background-color: #f9f9f9; }
+      .server { color: #007bff; font-weight: bold; }
+      .client { color: #28a745; }
+  </style>
+</head>
+<body>
+<h1>WebSocket Тест (Клиент)</h1>
+<p>Статус: <span id="status">Отключен</span></p>
+
+<button id="connectButton">Подключиться к ws://localhost:3000/ws</button>
+
+<hr>
+
+<h2>Отправка сообщения</h2>
+<input type="text" id="messageInput" value="Привет, сервер Fastify!" style="width: 300px;">
+<button id="sendButton" disabled>Отправить</button>
+<button id="getPuzzle" disabled>Дай</button>
+
+<h3>Лог сообщений:</h3>
+<div id="log" class="log-area"></div>
+
+<script>
+  const wsUrl = 'ws://localhost:3000/ws';
+  let socket = null;
+
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  const sendButton = document.getElementById('sendButton');
+  const inputEl = document.getElementById('messageInput');
+  const connectButton = document.getElementById('connectButton');
+  const getPuzzleButton = document.getElementById('getPuzzle');
+
+  function log(message, type = 'server') {
+    logEl.innerHTML += `<div class="${type}">${message}</div>`;
+    logEl.scrollTop = logEl.scrollHeight; // Прокрутка вниз
+  }
+
+  function send(data) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      // Отправка данных в формате JSON, как вы ожидаете на сервере
+      const dataToSend = JSON.stringify(data);
+      socket.send(dataToSend);
+      log(`[ОТПРАВЛЕНО]: ${dataToSend}`, 'client');
+    } else {
+      log('Соединение не активно. Нажмите "Подключиться".', 'client');
+    }
+
+  }
+
+  getPuzzleButton.onclick = function() {
+    send({
+      type: "get-puzzle",
+    });
+  }
+
+  connectButton.onclick = function() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      log("Соединение уже активно.", 'client');
+      return;
+    }
+
+    // 1. Создание нового WebSocket-объекта
+    socket = new WebSocket(wsUrl);
+    statusEl.textContent = 'Подключение...';
+
+    // 2. Обработка успешного подключения (Handshake завершен)
+    socket.onopen = function(e) {
+      statusEl.textContent = 'Подключен';
+      sendButton.disabled = false;
+      connectButton.disabled = true;
+      getPuzzleButton.disabled = false;
+      log('🟢 Соединение установлено.', 'client');
+    };
+
+    // 3. Обработка входящих сообщений от сервера
+    socket.onmessage = function(event) {
+      const rawData = event.data;
+      try {
+        const parsed = JSON.parse(rawData);
+        log(`[${parsed.type.toUpperCase()}]: ${parsed.data}`, 'server');
+      } catch (e) {
+        log(`[Сырые данные]: ${rawData}`, 'server');
+      }
+    };
+
+    // 4. Обработка ошибок
+    socket.onerror = function(error) {
+      log(`❌ Ошибка: ${error.message}`, 'server');
+      statusEl.textContent = 'Ошибка';
+    };
+
+    // 5. Обработка закрытия соединения
+    socket.onclose = function(event) {
+      statusEl.textContent = 'Отключен';
+      sendButton.disabled = true;
+      connectButton.disabled = false;
+      log(`🔴 Соединение закрыто. Код: ${event.code}`, 'client');
+    };
+  };
+
+  // 6. Отправка данных на сервер
+  sendButton.onclick = function() {
+    const message = inputEl.value;
+    send({
+      type: "message",
+      data: message,
+    })
+  };
+
+</script>
+</body>
+</html>
