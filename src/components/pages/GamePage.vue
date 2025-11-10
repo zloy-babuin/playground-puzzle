@@ -2,14 +2,16 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const puzzle = ref<SVGSVGElement | null>(null)
+let containerWidth: number;
+let containerHeight: number;
 
 onMounted(() => {
   const svg = puzzle.value!
   const container = svg.parentElement!
 
   // Сохраняем фиксированные размеры контейнера
-  const containerWidth = container.clientWidth
-  const containerHeight = container.clientHeight
+  containerWidth = container.clientWidth
+  containerHeight = container.clientHeight
 
   let viewX = 0
   let viewY = 0
@@ -43,13 +45,6 @@ onMounted(() => {
     viewX = pointX - (mouseX / containerWidth) * viewW
     viewY = pointY - (mouseY / containerHeight) * viewH
 
-    // Ограничения
-    const min = 200, max = 5000
-    if (viewW < min) viewW = min
-    if (viewH < min) viewH = min
-    if (viewW > max) viewW = max
-    if (viewH > max) viewH = max
-
     updateViewBox()
   }
 
@@ -63,6 +58,9 @@ onMounted(() => {
 
     const dx = e.clientX - lastX
     const dy = e.clientY - lastY
+    containerWidth = container.clientWidth
+    containerHeight = container.clientHeight
+
 
     // Коэффициент масштаба: насколько viewBox больше/меньше исходного контейнера
     const scaleX = viewW / containerWidth
@@ -134,7 +132,7 @@ onMounted(() => {
   const H = containerHeight
 
   // Сохраняем пропорции контейнера
-  const scale = 3
+  let scale = containerWidth / containerHeight
   viewX = -W
   viewY = -H
   viewW = W * scale
