@@ -1,81 +1,67 @@
 import Fastify from 'fastify';
 import wsPlugin from '@fastify/websocket';
-import type { FastifyInstance } from 'fastify';
-import { WebSocket } from 'ws';
-import { Puzzle } from './entities/Puzzle.js'
+import { Puzzle } from './entities/Puzzle.js';
 
-const fastify: FastifyInstance = Fastify({ logger: true });
+const fastify = Fastify({ logger: true });
 
-// Обычный HTTP-маршрут
 fastify.get('/', async () => {
   return { status: 'ok', component: 'HTTP server is running' };
 });
 
 const start = async () => {
   try {
-    // 1️⃣ Регистрируем WebSocket-плагин
     await fastify.register(wsPlugin);
 
-    // 2️⃣ Создаём WS-маршрут
-    fastify.get(
-      '/ws',
-      { websocket: true },
-      (socket /* это сам WebSocket! */, req) => {
-        console.log('⚡ Новый клиент подключен!');
+    fastify.get('/ws', { websocket: true }, (socket, req) => {
+      console.log('⚡ Новый клиент подключен!');
 
-        socket.send(
-          JSON.stringify({ type: 'greeting', data: 'Добро пожаловать!' })
-        );
+      socket.send(JSON.stringify({ type: 'greeting', data: 'Добро пожаловать!' }));
 
-        socket.on('message', (raw: Buffer) => {
-          const message = raw.toString();
-          console.log(`➡️ Получено сообщение: ${message}`);
-          let messageObj;
+      socket.on('message', (raw) => {
+        const message = raw.toString().trim();
+        if (!message) return;
 
-          try {
-            messageObj = JSON.parse(message);
-          } catch (e) {
-            messageObj = {type: "message", message};
-          }
-          console.log(messageObj);
-          if (messageObj.type === "get-puzzle") {
-            const puzzle = new Puzzle(
-              "small",
-              'me'
-            )
+        let data;
+        try {
+          data = JSON.parse(message);
+        } catch (e) {
+          socket.send(JSON.stringify({ type: 'error', data: 'Invalid JSON' }));
+          return;
+        }
 
-
-
-            const outData = {
-              type: "game-data",
-              data: puzzle.getForPlayer()
-            }
-
-            console.log(outData)
-            socket.send(JSON.stringify(outData));
+        // Обработка разных типов
+        switch (data.type) {
+          case 'get-puzzle': {
+            const puzzle = new Puzzle('small', 'me');
+            socket.send(
+              JSON.stringify({
+                type: 'game-data',
+                data: puzzle.getForPlayer(),
+              })
+            );
+            break;
           }
 
-          socket.send(
-            JSON.stringify({
-              type: 'echo',
-              data: `Сервер получил: ${message}`,
-            })
-          );
-        });
+          default:
+            socket.send(
+              JSON.stringify({
+                type: 'echo',
+                data: `Сервер получил: ${message}`,
+              })
+            );
+        }
+      });
 
-        socket.on('close', () => {
-          console.log('🔌 Клиент отключен.');
-        });
-      }
-    );
+      socket.on('close', () => {
+        console.log('🔌 Клиент отключен.');
+      });
+    });
 
-    // 3️⃣ Запускаем сервер
     await fastify.listen({ port: 3000 });
-
     console.log('🚀 Сервер запущен на http://127.0.0.1:3000');
-    console.log('🌐 WebSocket доступен на ws://127.0.0.1:3000/ws');
+    console.log('🌐 WebSocket: ws://127.0.0.1:3000/ws');
   } catch (err) {
-    console.error('❌ Ошибка запуска сервера:', err);
+    console.error('❌ Ошибка:', err);
     process.exit(1);
   }
 };

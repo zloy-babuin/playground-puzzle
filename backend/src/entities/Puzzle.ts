@@ -1,8 +1,8 @@
-import type { GameSize } from '/src/entities/d/GameSize.d.ts'
-import { Piece }  from '../entities/Piece.js'
-import { GameGrids } from '../entities/d/GameGrids.d.ts'
+import type { GameSize } from './d/GameSize'
+import { Piece }  from './Piece'
+import { GameGrids } from './d/GameGrids'
 import { randomUUID } from 'node:crypto'
-import type { PieceKind } from '../entities/d/PieceKind.js'
+import type { PieceKind } from './d/PieceKind'
 
 export class Puzzle {
   id: string;
@@ -80,8 +80,8 @@ export class Puzzle {
   }
 
   public getForPlayer() {
-    const pieces: [] = [];
-    this.pieces.forEach((_piece: Piece) => {
+    const pieces: any[] = [];
+    this.pieces.forEach(_piece => {
       pieces.push(_piece.getForPlayer());
     });
     return {
