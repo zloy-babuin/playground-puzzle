@@ -17,7 +17,8 @@ export class Piece {
     this.homePosition = home;
   }
 
-  public getForPlayer = (): {id:string, type: string, position: {x: number, y: number}, atHome: boolean} => {
+  public getForPlayer = (): Partial<Piece> => {
+  // public getForPlayer = (): Omit<Piece, "homePosition" | "getForPlayer"> => {
     return {
       id: this.id,
       type: this.type,

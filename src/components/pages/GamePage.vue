@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import PuzzleGame from '@/components/pages/PuzzleGame.vue'
+import { useGameStore } from '@/stores/game.ts'
 
 const puzzle = ref<SVGSVGElement | null>(null)
 let containerWidth: number;
@@ -173,6 +175,7 @@ onMounted(() => {
     document.removeEventListener('mouseup', onMouseUp)
   })
 })
+
 </script>
 
 <template>
@@ -180,5 +183,7 @@ onMounted(() => {
     ref="puzzle"
     class="absolute inset-0 w-full h-full"
     xmlns="http://www.w3.org/2000/svg"
-  />
+  >
+  </svg>
+  <puzzle-game/>
 </template>

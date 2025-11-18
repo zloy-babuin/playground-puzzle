@@ -63,11 +63,11 @@ export class Puzzle {
         }
 
         const piece = new Piece(
+          {x: currentX, y: currentY},
           {
             x: Math.round(Math.random() * 500 - 250),
             y: Math.round(Math.random() * 500 - 250)
           },
-          {x: currentX, y: currentY},
           type
         )
 

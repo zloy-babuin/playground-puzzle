@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import wsPlugin from '@fastify/websocket';
-import { Puzzle } from './entities/Puzzle.js';
+import { handleGetPuzzle } from './lib/GameDataHandler'; // Импортируем обработчик
 
 const fastify = Fastify({ logger: true });
 
@@ -31,16 +31,9 @@ const start = async () => {
 
         // Обработка разных типов
         switch (data.type) {
-          case 'get-puzzle': {
-            const puzzle = new Puzzle('small', 'me');
-            socket.send(
-              JSON.stringify({
-                type: 'game-data',
-                data: puzzle.getForPlayer(),
-              })
-            );
+          case 'get-puzzle':
+            socket.send(JSON.stringify(handleGetPuzzle(data)));
             break;
-          }
 
           default:
             socket.send(
